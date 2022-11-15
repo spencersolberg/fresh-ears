@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
-// import * as Tone from "https://esm.sh/tone?module";
-import * as Tone from "npm:tone";
+import * as Tone from "https://esm.sh/tone?module";
+// import * as Tone from "npm:tone";
 
 export default function Game() {
   const [synth, setSynth] = useState(new Tone.Synth().toDestination());
