@@ -26,6 +26,34 @@ export const allNotes = [
   "G5",
 ];
 
+export const notesOrder = [
+  "C4",
+  "E4",
+  "G4",
+  "B4",
+  "D4",
+  "A4",
+  "F4",
+  "C5",
+  "C#4",
+  "D#4",
+  "F#4",
+  "G#4",
+  "A#4",
+  "D5",
+  "C#5",
+  "B3",
+  "A#3",
+  "A3",
+  "G#3",
+  "G3",
+  "D#5",
+  "E5",
+  "F5",
+  "F#5",
+  "G5"
+];
+
 export const convertIntervalToName = (interval: number) => {
   switch (interval) {
     case 0:

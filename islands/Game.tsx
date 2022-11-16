@@ -6,30 +6,35 @@ import {
   calculateDistance,
   convertIntervalToName,
   Interval,
+  notesOrder,
 } from "../lib/utils.ts";
 
 import IntervalButton from "../components/IntervalButton.tsx";
+import BuyNoteButton from "../components/BuyNoteButton.tsx";
 
 export default function Game() {
   const [synth, setSynth] = useState<Tone.Synth | undefined>();
+  // const [notes, setNotes] = useState([
+  //   // C4 - D#5
+  //   "C4",
+  //   "C#4",
+  //   "D4",
+  //   "D#4",
+  //   "E4",
+  //   "F4",
+  //   "F#4",
+  //   "G4",
+  //   "G#4",
+  //   "A4",
+  //   "A#4",
+  //   "B4",
+  //   "C5",
+  //   "C#5",
+  //   "D5",
+  //   "D#5",
+  // ]);
   const [notes, setNotes] = useState([
-    // C4 - D#5
     "C4",
-    "C#4",
-    "D4",
-    "D#4",
-    "E4",
-    "F4",
-    "F#4",
-    "G4",
-    "G#4",
-    "A4",
-    "A#4",
-    "B4",
-    "C5",
-    "C#5",
-    "D5",
-    "D#5",
   ]);
 
   const [pressed, setPressed] = useState(false);
@@ -40,6 +45,23 @@ export default function Game() {
 
   const [money, setMoney] = useState(0);
   const [intervalReward, setIntervalReward] = useState(1);
+  const [intervalPenalty, setIntervalPenalty] = useState(1 / 4);
+
+  useEffect(() => {
+    setIntervalPenalty(intervalReward / 4);
+  }, [intervalReward]);
+
+  const [noteCost, setNoteCost] = useState(5);
+
+  useEffect(() => {
+    setNoteCost(5 * Math.pow(2, notes.length - 1));
+  });
+
+  const buyNote = () => {
+    if (money < noteCost) return;
+    setMoney(money - noteCost);
+    setNotes([...notes, notesOrder[notes.length]]);
+  };
 
   useEffect(() => {
     setSynth(new Tone.Synth().toDestination());
@@ -50,6 +72,10 @@ export default function Game() {
     // Gets two random notes from the notes array
     const first = notes[Math.floor(Math.random() * notes.length)];
     const second = notes[Math.floor(Math.random() * notes.length)];
+    if (calculateDistance(first, second) > 15) {
+      newInterval();
+      return;
+    }
     setCurrentInterval({ first, second });
 
     playInterval({ first, second });
@@ -98,6 +124,13 @@ export default function Game() {
       setCurrentInterval(null);
       return true;
     } else {
+      const moneyAfterPenalty = money - intervalPenalty;
+      if (moneyAfterPenalty < 0) {
+        setMoney(0);
+      } else {
+        setMoney(moneyAfterPenalty);
+      }
+
       return false;
     }
   };
@@ -134,8 +167,19 @@ export default function Game() {
         >
           Repeat
         </button>
-        <div class="grid grid-cols-2 gap-2 md:grid-cols-4 mt-6">
+        <h1 class="text-4xl font-bold mb-4">Intervals</h1>
+
+        <div class="grid grid-cols-2 gap-2 md:grid-cols-4 mt-2 mb-4">
           {intervalButtonArray}
+        </div>
+        <h1 class="text-4xl font-bold mb-4 mt-2">Shop</h1>
+        <div class="grid grid-cols-2 gap-2 md:grid-cols-4 mt-2 mb-4">
+          <BuyNoteButton
+            cost={noteCost}
+            money={money}
+            notes={notes}
+            buyNote={buyNote}
+          />
         </div>
       </div>
     </>
