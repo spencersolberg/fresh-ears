@@ -6,7 +6,6 @@ import {
   allNotes,
   availableIntervals,
   calculateDistance,
-  convertIntervalToName,
   determineIntervalDifficulty,
   formatNumber,
   Interval,
