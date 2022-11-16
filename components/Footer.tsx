@@ -25,7 +25,7 @@ export default function Footer() {
             target="_blank"
             class="hover:underline"
           >
-            spencersolberg
+            spencersolberg.com
           </a>
         </div>
       </div>

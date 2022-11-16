@@ -27,22 +27,22 @@ export const allNotes = [
 ];
 
 export const notesOrder = [
-  "C4",
-  "E4",
-  "G4",
-  "B4",
-  "D4",
+  "C4", // Unison
+  "E4", // Major Third
+  "G4", // Perfect Fifth, Minor Third
+  "B4", // Major Seventh
+  "D4", // Major Second, Perfect Fourth, Major Sixth
   "A4",
-  "F4",
-  "C5",
+  "F4", // Minor Second, Tritone
+  "C5", // Octave, Minor Sixth, Minor Seventh
   "C#4",
   "D#4",
   "F#4",
   "G#4",
   "A#4",
-  "D5",
-  "C#5",
-  "B3",
+  "D5", // Major Ninth
+  "C#5", // Minor Ninth
+  "B3", // Minor Tenth
   "A#3",
   "A3",
   "G#3",
@@ -169,3 +169,23 @@ export const determineIntervalDifficulty = (interval: Interval) => {
       return 1;
   }
 }
+
+export const availableIntervals = [
+  [],
+  [0], // Unison
+  [0, 4], // Major Third
+  [0, 4, 7, 3], // Perfect Fifth, Minor Third
+  [0, 4, 7, 3, 11], // Major Seventh
+  [0, 4, 7, 3, 11, 2, 5, 9], // Major Second, Perfect Fourth, Major Sixth
+  [0, 4, 7, 3, 11, 2, 5, 9],
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6], // Minor Second, Tritone
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10], // Octave, Minor Sixth, Minor Seventh
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10],
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10],
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10],
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10],
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10],
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10, 14], // Major Ninth
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10, 14, 13], // Minor Ninth
+  [0, 4, 7, 3, 11, 2, 5, 9, 1, 6, 12, 8, 10, 14, 13, 15], // Minor Tenth
+];

@@ -3,6 +3,8 @@ import * as Tone from "https://esm.sh/tone?module";
 // import * as Tone from "npm:tone";
 
 import {
+  allNotes,
+  availableIntervals,
   calculateDistance,
   convertIntervalToName,
   determineIntervalDifficulty,
@@ -13,9 +15,10 @@ import {
 
 import IntervalButton from "../components/IntervalButton.tsx";
 import BuyNoteButton from "../components/BuyNoteButton.tsx";
+import PolyphonyButton from "../components/PolyphonyButton.tsx";
 
 export default function Game() {
-  const [synth, setSynth] = useState<Tone.Synth | undefined>();
+  const [synth, setSynth] = useState<Tone.PolySynth | undefined>();
 
   enum Category {
     Intervals,
@@ -37,19 +40,45 @@ export default function Game() {
     Interval | null
   >(null);
 
-  const [money, setMoney] = useState(0);
+  const [money, setMoney] = useState(150);
   const [intervalReward, setIntervalReward] = useState(1);
   const [intervalPenalty, setIntervalPenalty] = useState(1 / 4);
   const [streakBonus, setStreakBonus] = useState(1);
   const [intervalDifficulty, setIntervalDifficulty] = useState(1);
+  const [polyphonyActive, setPolyphonyActive] = useState(false);
+  const [polyphonyPurchased, setPolyphonyPurchased] = useState(false);
+  const [unlockedIntervals, setUnlockedIntervals] = useState([0]);
+
+  const polyphonyCost = 100;
+
+  const purchasePolyphony = () => {
+    if (money < polyphonyCost) return;
+    setMoney(money - polyphonyCost);
+    setPolyphonyPurchased(true);
+    setPolyphonyActive(true);
+  };
+
+  const togglePolyphony = () => {
+    setPolyphonyActive(!polyphonyActive);
+  };
+
+  useEffect(() => {
+    setUnlockedIntervals(availableIntervals[notes.length]);
+  }, [notes]);
 
   useEffect(() => {
     setIntervalPenalty(intervalReward / 4);
   }, [intervalReward]);
 
   useEffect(() => {
-    setIntervalReward(1 * streakBonus * intervalDifficulty);
-  }, [streakBonus, intervalDifficulty]);
+    const descending = currentInterval &&
+      (allNotes.indexOf(currentInterval.first) >
+        allNotes.indexOf(currentInterval.second));
+    setIntervalReward(
+      1 * streakBonus * intervalDifficulty * (polyphonyActive ? 4 : 1) *
+        (descending && !polyphonyActive ? 2 : 1),
+    );
+  }, [streakBonus, intervalDifficulty, polyphonyActive, currentInterval]);
 
   const [noteCost, setNoteCost] = useState(5);
 
@@ -64,7 +93,7 @@ export default function Game() {
   };
 
   useEffect(() => {
-    setSynth(new Tone.Synth().toDestination());
+    setSynth(new Tone.PolySynth().toDestination());
   }, []);
 
   const newInterval = () => {
@@ -85,13 +114,27 @@ export default function Game() {
   const playInterval = (interval: Interval) => {
     if (!synth) return;
     setPressed(true);
-    synth.triggerAttackRelease(interval.first, "8n");
-    setTimeout(() => {
-      synth.triggerAttackRelease(interval.second, "8n");
+    if (polyphonyActive) {
+      // // trigger the attack immediately
+      // synth.triggerAttack(interval.first);
+      // synth.triggerAttack(interval.second);
+      // // wait one second before triggering the release
+      // synth.triggerRelease("+1");
+      synth.triggerAttackRelease([
+        ...new Set([interval.first, interval.second]),
+      ], "4n");
       setTimeout(() => {
         setPressed(false);
+      }, 1500);
+    } else {
+      synth.triggerAttackRelease([interval.first], "8n");
+      setTimeout(() => {
+        synth.triggerAttackRelease([interval.second], "8n");
+        setTimeout(() => {
+          setPressed(false);
+        }, 1000);
       }, 1000);
-    }, 1000);
+    }
   };
 
   const intervalButtonArray = [];
@@ -104,6 +147,7 @@ export default function Game() {
           return guessInterval(i);
         }}
         currentInterval={currentInterval}
+        unlockedIntervals={unlockedIntervals}
       />,
     );
   }
@@ -190,6 +234,16 @@ export default function Game() {
             money={money}
             notes={notes}
             buyNote={buyNote}
+          />
+          <PolyphonyButton
+            cost={polyphonyCost}
+            purchased={polyphonyPurchased}
+            active={polyphonyActive}
+            purchase={purchasePolyphony}
+            money={money}
+            toggle={togglePolyphony}
+            notes={notes}
+            setCurrentInterval={setCurrentInterval}
           />
         </div>
       </div>
