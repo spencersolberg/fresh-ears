@@ -40,7 +40,7 @@ export default function Game() {
     Interval | null
   >(null);
 
-  const [money, setMoney] = useState(150);
+  const [money, setMoney] = useState(0);
   const [intervalReward, setIntervalReward] = useState(1);
   const [intervalPenalty, setIntervalPenalty] = useState(1 / 4);
   const [streakBonus, setStreakBonus] = useState(1);
