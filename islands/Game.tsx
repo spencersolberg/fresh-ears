@@ -5,6 +5,8 @@ import * as Tone from "https://esm.sh/tone?module";
 import {
   calculateDistance,
   convertIntervalToName,
+  determineIntervalDifficulty,
+  formatNumber,
   Interval,
   notesOrder,
 } from "../lib/utils.ts";
@@ -15,18 +17,19 @@ import BuyNoteButton from "../components/BuyNoteButton.tsx";
 export default function Game() {
   const [synth, setSynth] = useState<Tone.Synth | undefined>();
 
-  enum Modes {
+  enum Category {
     Intervals,
     Chords,
     Melodies,
     Progressions,
+    Scales,
   }
 
   const [notes, setNotes] = useState([
     "C4",
   ]);
 
-  const [mode, setMode] = useState<Modes>(Modes.Intervals);
+  const [category, setCategory] = useState<Category>(Category.Intervals);
 
   const [pressed, setPressed] = useState(false);
 
@@ -37,10 +40,16 @@ export default function Game() {
   const [money, setMoney] = useState(0);
   const [intervalReward, setIntervalReward] = useState(1);
   const [intervalPenalty, setIntervalPenalty] = useState(1 / 4);
+  const [streakBonus, setStreakBonus] = useState(1);
+  const [intervalDifficulty, setIntervalDifficulty] = useState(1);
 
   useEffect(() => {
     setIntervalPenalty(intervalReward / 4);
   }, [intervalReward]);
+
+  useEffect(() => {
+    setIntervalReward(1 * streakBonus * intervalDifficulty);
+  }, [streakBonus, intervalDifficulty]);
 
   const [noteCost, setNoteCost] = useState(5);
 
@@ -68,6 +77,7 @@ export default function Game() {
       return;
     }
     setCurrentInterval({ first, second });
+    setIntervalDifficulty(determineIntervalDifficulty({ first, second }));
 
     playInterval({ first, second });
   };
@@ -113,6 +123,7 @@ export default function Game() {
     if (distance === actualDistance) {
       setMoney(money + intervalReward);
       setCurrentInterval(null);
+      setStreakBonus(streakBonus + .1);
       return true;
     } else {
       const moneyAfterPenalty = money - intervalPenalty;
@@ -121,6 +132,7 @@ export default function Game() {
       } else {
         setMoney(moneyAfterPenalty);
       }
+      setStreakBonus(1);
 
       return false;
     }
@@ -129,19 +141,27 @@ export default function Game() {
   return (
     <>
       <div class="flex flex-col">
-        <h1 class="text-6xl font-bold mx-auto mb-4">${money}</h1>
-        <button
-          class={(!pressed && !currentInterval
-            ? `hover:scale-105 active:scale-95 focus:outline-none`
-            : `focus:outline-none opacity-50 cursor-not-allowed`) +
-            " text-6xl outline-none transition-transform transform-gpu transform-opacity touch-manipulation"}
-          onClick={() => {
-            if (pressed || currentInterval) return;
-            newInterval();
-          }}
-        >
-          🎶
-        </button>
+        <h1 class="text-6xl font-bold mx-auto mb-4">${formatNumber(money)}</h1>
+        <div class="grid grid-cols-3">
+          <div></div>
+          <button
+            class={(!pressed && !currentInterval
+              ? `hover:scale-105 active:scale-95 focus:outline-none`
+              : `focus:outline-none opacity-50 cursor-not-allowed`) +
+              " text-6xl outline-none transition-transform transform-gpu transform-opacity touch-manipulation"}
+            onClick={() => {
+              if (pressed || currentInterval) return;
+              newInterval();
+            }}
+          >
+            🎶
+          </button>
+          <div class="flex flex-col justify-end">
+            <h2 class="font-medium text-xl text-right">
+              bonus x{formatNumber(streakBonus)}
+            </h2>
+          </div>
+        </div>
         <button
           class={"mt-4 text-blue-500 hover:underline outline-none focus:outline-none transition-opacity text-2xl" +
             (

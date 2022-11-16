@@ -106,3 +106,66 @@ export type Interval = {
   first: string;
   second: string;
 };
+
+// this function formats numbers
+// examples:
+// 1.5003 => 1.50
+// 1.5999 => 1.60
+// 15003 => 1.5k
+// 1000000 => 1M
+// 1341578 => 1.341M
+export const formatNumber = (number: number) => {
+  if (number < 1000) {
+    return number.toFixed(2);
+  } else if (number < 1000000) {
+    return (number / 1000).toFixed(2) + "k";
+  } else if (number < 1000000000) {
+    return (number / 1000000).toFixed(2) + "M";
+  } else if (number < 1000000000000) {
+    return (number / 1000000000).toFixed(2) + "B";
+  } else {
+    return (number / 1000000000000).toFixed(2) + "T";
+  }
+}
+
+export const determineIntervalDifficulty = (interval: Interval) => {
+  const distance = calculateDistance(interval.first, interval.second);
+  // console.log(distance);
+  switch (distance) {
+    case 0: // unison
+      return 1;
+    case 1: // minor 2nd
+      return 2;
+    case 2: // major 2nd
+      return 1;
+    case 3: // minor 3rd
+      return 2;
+    case 4: // major 3rd
+      return 1;
+    case 5: // perfect 4th
+      return 1;
+    case 6:// tritone
+      return 3;
+    case 7:// perfect 5th
+      return 1;
+    case 8:// minor 6th
+      return 3;
+    case 9:// major 6th
+      return 2;
+    case 10:// minor 7th
+      return 2;
+    case 11:// major 7th
+      return 2;
+    case 12:// octave
+      return 1;
+    case 13:// minor 9th
+      return 3;
+    case 14:// major 9th
+      return 3;
+    case 15:// minor 10th
+      return 3;
+    // otherwise return 1
+    default:
+      return 1;
+  }
+}
