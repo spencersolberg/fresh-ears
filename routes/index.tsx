@@ -18,7 +18,7 @@ export default function Home() {
           `}
         </style>
       </Head>
-      <main class="p-4 mx-auto max-w-screen-md">
+      <main class="p-4 mx-auto max-w-screen-md mb-16">
         <Game />
       </main>
       <Footer />

@@ -14,28 +14,19 @@ import BuyNoteButton from "../components/BuyNoteButton.tsx";
 
 export default function Game() {
   const [synth, setSynth] = useState<Tone.Synth | undefined>();
-  // const [notes, setNotes] = useState([
-  //   // C4 - D#5
-  //   "C4",
-  //   "C#4",
-  //   "D4",
-  //   "D#4",
-  //   "E4",
-  //   "F4",
-  //   "F#4",
-  //   "G4",
-  //   "G#4",
-  //   "A4",
-  //   "A#4",
-  //   "B4",
-  //   "C5",
-  //   "C#5",
-  //   "D5",
-  //   "D#5",
-  // ]);
+
+  enum Modes {
+    Intervals,
+    Chords,
+    Melodies,
+    Progressions,
+  }
+
   const [notes, setNotes] = useState([
     "C4",
   ]);
+
+  const [mode, setMode] = useState<Modes>(Modes.Intervals);
 
   const [pressed, setPressed] = useState(false);
 
