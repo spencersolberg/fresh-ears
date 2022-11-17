@@ -16,6 +16,7 @@ import IntervalButton from "../components/IntervalButton.tsx";
 import BuyNoteButton from "../components/BuyNoteButton.tsx";
 import PolyphonyButton from "../components/PolyphonyButton.tsx";
 import DoubleBonusButton from "../components/DoubleBonusButton.tsx";
+import DescendingButton from "../components/DescendingButton.tsx";
 
 export default function Game() {
   const [synth, setSynth] = useState<Tone.PolySynth | undefined>();
@@ -45,6 +46,8 @@ export default function Game() {
   const [polyphonyPurchased, setPolyphonyPurchased] = useState(false);
   const [unlockedIntervals, setUnlockedIntervals] = useState([0]);
   const [doubleBonus, setDoubleBonus] = useState(false);
+  const [descendingPurchased, setDescendingPurchased] = useState(false);
+  const [descendingActive, setDescendingActive] = useState(false);
 
   useEffect(() => {
     // load above states from local storage
@@ -63,6 +66,12 @@ export default function Game() {
     setDoubleBonus(
       localStorage.getItem("doubleBonus") === "true",
     );
+    setDescendingPurchased(
+      localStorage.getItem("descendingPurchased") === "true",
+    );
+    setDescendingActive(
+      localStorage.getItem("descendingActive") === "true",
+    );
   }, []);
 
   useEffect(() => {
@@ -77,6 +86,11 @@ export default function Game() {
       JSON.stringify(unlockedIntervals),
     );
     localStorage.setItem("doubleBonus", doubleBonus.toString());
+    localStorage.setItem(
+      "descendingPurchased",
+      descendingPurchased.toString(),
+    );
+    localStorage.setItem("descendingActive", descendingActive.toString());
   }, [
     money,
     notes,
@@ -85,6 +99,8 @@ export default function Game() {
     polyphonyPurchased,
     unlockedIntervals,
     doubleBonus,
+    descendingPurchased,
+    descendingActive,
   ]);
 
   const polyphonyCost = 100;
@@ -97,20 +113,44 @@ export default function Game() {
     if (money < polyphonyCost) return;
     setMoney(money - polyphonyCost);
     setPolyphonyPurchased(true);
+    if (descendingActive) {
+      setDescendingActive(false);
+    }
     setPolyphonyActive(true);
   };
 
   const togglePolyphony = () => {
+    if (!polyphonyActive && descendingActive) {
+      setDescendingActive(false);
+    }
     setPolyphonyActive(!polyphonyActive);
     setStreakBonus(1);
   };
 
   const doubleBonusCost = 750;
+  const descendingCost = 25;
 
   const purchaseDoubleBonus = () => {
     if (money < doubleBonusCost) return;
     setMoney(money - doubleBonusCost);
     setDoubleBonus(true);
+  };
+
+  const purchaseDescending = () => {
+    if (money < descendingCost) return;
+    setMoney(money - descendingCost);
+    setDescendingPurchased(true);
+    if (polyphonyActive) {
+      setPolyphonyActive(false);
+    }
+    setDescendingActive(true);
+  };
+
+  const toggleDescending = () => {
+    if (!descendingActive && polyphonyActive) {
+      setPolyphonyActive(false);
+    }
+    setDescendingActive(!descendingActive);
   };
 
   useEffect(() => {
@@ -157,10 +197,28 @@ export default function Game() {
       newInterval();
       return;
     }
-    setCurrentInterval({ first, second });
-    setIntervalDifficulty(determineIntervalDifficulty({ first, second }));
 
-    playInterval({ first, second });
+    let interval: Interval;
+
+    // if first note is higher than second, swap them
+    if (
+      allNotes.indexOf(first) > allNotes.indexOf(second) && !descendingActive
+    ) {
+      interval = {
+        first: second,
+        second: first,
+      };
+    } else {
+      interval = {
+        first,
+        second,
+      };
+    }
+
+    setCurrentInterval(interval);
+    setIntervalDifficulty(determineIntervalDifficulty(interval));
+
+    playInterval(interval);
   };
 
   const playInterval = (interval: Interval) => {
@@ -303,6 +361,15 @@ export default function Game() {
             money={money}
             purchase={purchaseDoubleBonus}
             notes={notes}
+          />
+          <DescendingButton
+            cost={descendingCost}
+            purchased={descendingPurchased}
+            active={descendingActive}
+            money={money}
+            purchase={purchaseDescending}
+            notes={notes}
+            toggle={toggleDescending}
           />
         </div>
       </div>
