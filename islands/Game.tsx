@@ -15,6 +15,7 @@ import {
 import IntervalButton from "../components/IntervalButton.tsx";
 import BuyNoteButton from "../components/BuyNoteButton.tsx";
 import PolyphonyButton from "../components/PolyphonyButton.tsx";
+import DoubleBonusButton from "../components/DoubleBonusButton.tsx";
 
 export default function Game() {
   const [synth, setSynth] = useState<Tone.PolySynth | undefined>();
@@ -27,10 +28,6 @@ export default function Game() {
     Scales,
   }
 
-  const [notes, setNotes] = useState([
-    "C4",
-  ]);
-
   const [category, setCategory] = useState<Category>(Category.Intervals);
 
   const [pressed, setPressed] = useState(false);
@@ -40,15 +37,61 @@ export default function Game() {
   >(null);
 
   const [money, setMoney] = useState(0);
-  const [intervalReward, setIntervalReward] = useState(1);
-  const [intervalPenalty, setIntervalPenalty] = useState(1 / 4);
+  const [notes, setNotes] = useState([
+    "C4",
+  ]);
   const [streakBonus, setStreakBonus] = useState(1);
-  const [intervalDifficulty, setIntervalDifficulty] = useState(1);
   const [polyphonyActive, setPolyphonyActive] = useState(false);
   const [polyphonyPurchased, setPolyphonyPurchased] = useState(false);
   const [unlockedIntervals, setUnlockedIntervals] = useState([0]);
+  const [doubleBonus, setDoubleBonus] = useState(false);
+
+  useEffect(() => {
+    // load above states from local storage
+    setMoney(Number(localStorage.getItem("money") || "0"));
+    setNotes(JSON.parse(localStorage.getItem("notes") || '["C4"]'));
+    setStreakBonus(Number(localStorage.getItem("streakBonus") || "1"));
+    setPolyphonyActive(
+      localStorage.getItem("polyphonyActive") === "true",
+    );
+    setPolyphonyPurchased(
+      localStorage.getItem("polyphonyPurchased") === "true",
+    );
+    setUnlockedIntervals(
+      JSON.parse(localStorage.getItem("unlockedIntervals") || "[]"),
+    );
+    setDoubleBonus(
+      localStorage.getItem("doubleBonus") === "true",
+    );
+  }, []);
+
+  useEffect(() => {
+    // save above states to local storage
+    localStorage.setItem("money", money.toString());
+    localStorage.setItem("notes", JSON.stringify(notes));
+    localStorage.setItem("streakBonus", streakBonus.toString());
+    localStorage.setItem("polyphonyActive", polyphonyActive.toString());
+    localStorage.setItem("polyphonyPurchased", polyphonyPurchased.toString());
+    localStorage.setItem(
+      "unlockedIntervals",
+      JSON.stringify(unlockedIntervals),
+    );
+    localStorage.setItem("doubleBonus", doubleBonus.toString());
+  }, [
+    money,
+    notes,
+    streakBonus,
+    polyphonyActive,
+    polyphonyPurchased,
+    unlockedIntervals,
+    doubleBonus,
+  ]);
 
   const polyphonyCost = 100;
+
+  const [intervalReward, setIntervalReward] = useState(1);
+  const [intervalDifficulty, setIntervalDifficulty] = useState(1);
+  const [intervalPenalty, setIntervalPenalty] = useState(1 / 4);
 
   const purchasePolyphony = () => {
     if (money < polyphonyCost) return;
@@ -59,6 +102,15 @@ export default function Game() {
 
   const togglePolyphony = () => {
     setPolyphonyActive(!polyphonyActive);
+    setStreakBonus(1);
+  };
+
+  const doubleBonusCost = 750;
+
+  const purchaseDoubleBonus = () => {
+    if (money < doubleBonusCost) return;
+    setMoney(money - doubleBonusCost);
+    setDoubleBonus(true);
   };
 
   useEffect(() => {
@@ -74,7 +126,8 @@ export default function Game() {
       (allNotes.indexOf(currentInterval.first) >
         allNotes.indexOf(currentInterval.second));
     setIntervalReward(
-      1 * streakBonus * intervalDifficulty * (polyphonyActive ? 4 : 1) *
+      1 * (streakBonus * (doubleBonus ? 2 : 1)) * intervalDifficulty *
+        (polyphonyActive ? 4 : 1) *
         (descending && !polyphonyActive ? 2 : 1),
     );
   }, [streakBonus, intervalDifficulty, polyphonyActive, currentInterval]);
@@ -201,7 +254,7 @@ export default function Game() {
           </button>
           <div class="flex flex-col justify-end">
             <h2 class="font-medium text-xl text-right">
-              bonus x{formatNumber(streakBonus)}
+              bonus x{formatNumber(streakBonus * (doubleBonus ? 2 : 1))}
             </h2>
           </div>
         </div>
@@ -243,6 +296,13 @@ export default function Game() {
             toggle={togglePolyphony}
             notes={notes}
             setCurrentInterval={setCurrentInterval}
+          />
+          <DoubleBonusButton
+            cost={doubleBonusCost}
+            purchased={doubleBonus}
+            money={money}
+            purchase={purchaseDoubleBonus}
+            notes={notes}
           />
         </div>
       </div>

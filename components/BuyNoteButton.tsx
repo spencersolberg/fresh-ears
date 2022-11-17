@@ -1,5 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
-import { allNotes } from "../lib/utils.ts";
+import { allNotes, formatNumber } from "../lib/utils.ts";
 
 interface BuyNoteButtonProps {
   cost: number;
@@ -23,7 +22,11 @@ export default function BuyNoteButton(
       }}
     >
       Buy Note {notes.length}/{allNotes.length} -{" "}
-      {notes.length != allNotes.length ? "$" + cost : "MAX"}
+      {notes.length != allNotes.length ? "$" + formatNumber(cost) : "MAX"}
+      <br />
+      <span class="text-sm font-medium">
+        Purchase new notes to discover new intervals
+      </span>
     </button>
   );
 }
