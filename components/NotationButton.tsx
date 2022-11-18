@@ -1,6 +1,4 @@
-import { Interval } from "../lib/utils.ts";
-
-interface DescendingButtonProps {
+interface NotationButtonProps {
   money: number;
   cost: number;
   purchased: boolean;
@@ -10,7 +8,7 @@ interface DescendingButtonProps {
   notes: string[];
 }
 
-export default function DescendingButton(
+export default function NotationButton(
   {
     cost,
     purchased,
@@ -19,12 +17,12 @@ export default function DescendingButton(
     purchase,
     toggle,
     notes,
-  }: DescendingButtonProps,
+  }: NotationButtonProps,
 ) {
   return (
     <button
       class={`text-white font-bold py-2 px-4 rounded transition-colors transition-transform transform-gpu transition-opacity ${
-        notes.length < 3
+        notes.length < 11
           ? "hidden"
           : !purchased && (money >= cost)
           ? "bg-blue-500 hover:bg-blue-700"
@@ -37,6 +35,7 @@ export default function DescendingButton(
           : ""
       }`}
       onClick={() => {
+        console.log("clicked");
         if (!purchased && (money >= cost)) {
           purchase();
           return;
@@ -46,11 +45,10 @@ export default function DescendingButton(
         }
       }}
     >
-      Descending Intervals -{" "}
-      {!purchased ? "$" + cost : active ? "ACTIVE" : "INACTIVE"}
+      Notation - {!purchased ? "$" + cost : active ? "ACTIVE" : "INACTIVE"}
       <br />
       <span class="text-sm font-medium">
-        Descending intervals give 2x reward
+        Staff notation instead of interval names for 4x reward
       </span>
     </button>
   );

@@ -42,7 +42,10 @@ export default function PolyphonyButton(
           : ""
       }`}
       onClick={() => {
-        if (!purchased && (money >= cost)) purchase();
+        if (!purchased && (money >= cost)) {
+          purchase();
+          return;
+        }
         if (purchased) {
           toggle();
           setCurrentInterval(null);
