@@ -1,1 +1,4 @@
 .vscode
+.todo
+# Fresh build directory
+_fresh/

@@ -200,6 +200,7 @@ export default function Game() {
     setIntervalReward(
       1 * (streakBonus * (doubleBonus ? 2 : 1)) * intervalDifficulty *
         (polyphonyActive ? 4 : 1) *
+        (notationActive ? 4 : 1) *
         (descending && !polyphonyActive ? 2 : 1),
     );
   }, [streakBonus, intervalDifficulty, polyphonyActive, currentInterval]);
